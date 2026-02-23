@@ -65,6 +65,50 @@ describe('Routes', () => {
     expect(recipe.title).toBe(newRecipe.title);
   });
 
+  test('POST /recipes should return 400 if title is empty', async () => {
+    const invalidRecipe = {
+      title: '',
+      ingredients: 'Test ingredients',
+      method: 'Test method'
+    };
+
+    const response = await request(app)
+      .post('/recipes')
+      .send(invalidRecipe);
+
+    expect(response.status).toBe(400);
+    expect(response.text).toContain('Recipe title is required');
+  });
+
+  test('POST /recipes should return 400 if title is only whitespace', async () => {
+    const invalidRecipe = {
+      title: '   ',
+      ingredients: 'Test ingredients',
+      method: 'Test method'
+    };
+
+    const response = await request(app)
+      .post('/recipes')
+      .send(invalidRecipe);
+
+    expect(response.status).toBe(400);
+    expect(response.text).toContain('Recipe title is required');
+  });
+
+  test('POST /recipes should return 400 if title is missing', async () => {
+    const invalidRecipe = {
+      ingredients: 'Test ingredients',
+      method: 'Test method'
+    };
+
+    const response = await request(app)
+      .post('/recipes')
+      .send(invalidRecipe);
+
+    expect(response.status).toBe(400);
+    expect(response.text).toContain('Recipe title is required');
+  });
+
   test('DELETE /recipes/:id should delete a recipe', async () => {
     // First create a recipe to delete
     const newRecipe = {

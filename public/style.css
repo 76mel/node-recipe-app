@@ -97,8 +97,8 @@ main {
 
 .btn-danger {
 	background-color: #e74c3c;
-	height: 100%;
 }
+
 
 .btn-danger:hover {
 	background-color: #c0392b;
