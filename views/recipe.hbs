@@ -98,11 +98,10 @@ function deleteRecipe(recipeId) {
             method: 'DELETE',
         })
         .then(response => {
-            if (response.redirected) {
-                window.location.href = response.url;
-            } else {
-                window.location.href = '/recipes';
+            if (!response.ok) {
+                throw new Error('Delete failed');
             }
+            window.location.href = '/recipes';
         })
         .catch(error => {
             console.error('Error:', error);

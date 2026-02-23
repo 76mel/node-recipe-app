@@ -41,10 +41,15 @@ router.post('/recipes/:id/edit', async (req, res) => {
 })
 
 router.delete('/recipes/:id', async (req, res) => {
-	const db = await getDbConnection()
-	const recipeId = req.params.id
-	await db.run('DELETE FROM recipes WHERE id = ?', [recipeId])
-	res.redirect('/recipes')
+	try {
+		const db = await getDbConnection()
+		const recipeId = req.params.id
+		await db.run('DELETE FROM recipes WHERE id = ?', [recipeId])
+		res.redirect('/recipes')
+	} catch (error) {
+		console.error('Error deleting recipe:', error)
+		res.status(500).send('Error deleting recipe')
+	}
 })
 
 module.exports = router
