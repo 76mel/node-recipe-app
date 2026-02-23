@@ -64,4 +64,60 @@ describe('Routes', () => {
     expect(recipe).toBeDefined();
     expect(recipe.title).toBe(newRecipe.title);
   });
+
+  test('DELETE /recipes/:id should delete a recipe', async () => {
+    // First create a recipe to delete
+    const newRecipe = {
+      title: 'Recipe to Delete',
+      ingredients: 'Test ingredients',
+      method: 'Test method'
+    };
+
+    await request(app)
+      .post('/recipes')
+      .send(newRecipe);
+
+    // Get the created recipe
+    const recipe = await db.get('SELECT * FROM recipes WHERE title = ?', [newRecipe.title]);
+    expect(recipe).toBeDefined();
+
+    // Delete the recipe
+    const deleteResponse = await request(app)
+      .delete(`/recipes/${recipe.id}`);
+
+    expect(deleteResponse.status).toBe(302); // Redirect status
+    expect(deleteResponse.headers.location).toBe('/recipes');
+
+    // Verify recipe was deleted
+    const deletedRecipe = await db.get('SELECT * FROM recipes WHERE id = ?', [recipe.id]);
+    expect(deletedRecipe).toBeUndefined();
+  });
+
+  test('GET /recipes/:id should return 404 view for deleted recipe', async () => {
+    // First create a recipe to delete
+    const newRecipe = {
+      title: 'Recipe to Delete for 404 Test',
+      ingredients: 'Test ingredients',
+      method: 'Test method'
+    };
+
+    await request(app)
+      .post('/recipes')
+      .send(newRecipe);
+
+    // Get the created recipe
+    const recipe = await db.get('SELECT * FROM recipes WHERE title = ?', [newRecipe.title]);
+    expect(recipe).toBeDefined();
+
+    // Delete the recipe
+    await request(app)
+      .delete(`/recipes/${recipe.id}`);
+
+    // Try to get the deleted recipe - it should show the "not found" view
+    const getResponse = await request(app)
+      .get(`/recipes/${recipe.id}`);
+
+    expect(getResponse.status).toBe(200);
+    expect(getResponse.body.locals.recipe).toBeUndefined();
+  });
 });
